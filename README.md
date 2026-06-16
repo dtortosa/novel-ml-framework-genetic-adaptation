@@ -1,8 +1,8 @@
 # High-Performance Distributed Machine Learning & Model Optimization Framework
 
-An high-performance computing (HPC) machine learning framework designed to process, model, and interpret massive, high-dimensional target datasets (~180 GB compressed). 
+An high-performance machine learning framework designed to process, model, and interpret massive, high-dimensional target datasets (~180 GB compressed). 
 
-The platform implements multi-core, parallelized feature extraction alongside a distributed model benchmarking engine that evaluates multiple model classes (Deep Learning, XGBoost, Random Forest, ElasticNet) through rigid statistical frameworks like nested cross-validation and hyperparameter optimization.
+The platform implements multi-core, parallelized feature extraction alongside a model benchmarking engine that evaluates multiple model classes (Deep Learning, XGBoost, Random Forest, ElasticNet) through rigid statistical frameworks like nested cross-validation and hyperparameter optimization.
 
 ## 🧠 System Architecture & Pipeline Execution
 
