@@ -1,22 +1,24 @@
-# Machine Learning & Model Optimization Framework
+# Modeling Signals of Adaptation Across the Human Genome with Machine Learning
 
-A high-performance machine learning framework for processing, modeling, and interpreting a large, high-dimensional dataset (~180 GB compressed).
+Machine learning framework to model signals of recent positive selection (iHS) across the human genome while controlling for genomic confounders such as recombination rate, GC content and the density of functional elements. It tests whether signals of adaptation increase near specific gene sets, such as genes involved in thermogenesis or virus-interacting proteins (VIPs).
 
-It runs parallelized feature extraction across multiple cores and benchmarks several model classes—deep learning, XGBoost, random forest, and ElasticNet—using nested cross-validation and hyperparameter optimization.
+The pipeline processes ~180 GB of compressed genomic data (1000 Genomes Project) into gene-level features. It then benchmarks elastic net, random forests, XGBoost and deep neural networks using nested cross-validation and Bayesian hyperparameter optimization, and interprets the selected models with explainable AI.
 
-## 🧠 System Architecture & Pipeline Execution
+Results featured by the European Commission [CORDIS Results in Brief, 2025](https://cordis.europa.eu/article/id/459619-ancient-climate-adaptation-links-to-current-metabolic-health)
 
-The workload is split into separate scripts, each handling one stage of the pipeline:
+## Pipeline
+
+Each stage of the pipeline is a separate script:
 
 ### 1. Parallel Feature Engineering
 - **Implementation:** `00a_pressure_distance_calc_v1.py` & `00b_bat_distance_calc_v1.sh`
-- Uses a Python `multiprocessing` pool to compute spatial distances over coordinate indices in parallel. Includes exception handling, percentage-based data-loss checks, and fallback handlers.
+- Computes, for every protein-coding gene, the genomic distance to the nearest gene in each set of interest (e.g., VIPs, thermogenic genes), using a Python `multiprocessing` pool. Includes exception handling and checks on the percentage of data lost at each step.
 
 ### 2. Multi-Algorithm Benchmarking
 - **Implementation:** `01_models_benchmark.py` & `01_models_benchmark.slurm`
 - Distributes model selection across Slurm cluster nodes using 400 parallel tasks.
-- Trains several model types: deep neural networks (TensorFlow/Keras), gradient-boosted trees (XGBoost), and regularized linear models (ElasticNet).
-- Uses **nested cross-validation** to prevent data leakage during hyperparameter tuning.
+- Trains elastic net, random forests, gradient-boosted trees (XGBoost) and deep neural networks (multilayer perceptrons, TensorFlow/Keras).
+- Uses **nested cross-validation**, so performance is evaluated on data never used during hyperparameter tuning, and Bayesian optimization (Optuna) to search the neural network hyperparameter space ( hyperparameters).
 
 ### 3. Results Post-Processing
 - **Implementation:** `02_process_results_models_comparison.py`
@@ -24,19 +26,19 @@ The workload is split into separate scripts, each handling one stage of the pipe
 
 ### 4. Stacking Ensemble
 - **Implementation:** `03_explore_selected_model_class.py` & `03_explore_selected_model_class.slurm`
-- Combines the best-performing models into a cross-validated stacking regressor (meta-learner), running over multiple random seeds to track variance.
-- Saves the final models to disk as Gzip-compressed `joblib` files.
+- Combines the best-performing models into a cross-validated stacking regressor, run over multiple random seeds to quantify variance.
+- Saves the final models as Gzip-compressed `joblib` files.
 
-## 📊 Key Engineering & Performance Outcomes
+## Results
 
-- **Data scale:** Built pipelines to load, clean, and transform ~180 GB of high-dimensional tabular features.
-- **Scaling:** Configured Slurm to distribute training across hundreds of CPU cores.
-- **Model performance:** Found neural network architectures reaching an $R^2$ of **80%** on held-out test sets.
-- **Explainability:** Used Permutation Feature Importance and Accumulated Local Effects (ALE) plots to interpret the non-linear deep models.
+- **Model performance:** the best model, a deep neural network (5 layers, 1,000 neurons), reached a median R² of 0.83 on held-out data in the Yoruba population.
+- **Transfer:** without retraining, the same network kept R² ≈ 0.80 in other 25 populations across 4 continents.
+- **Explainability:** permutation feature importance and accumulated local effects (ALE) plots showed that iHS increases near thermogenic genes, independently of the genomic confounders in the model.
+- **Scaling:** model selection distributed over hundreds of CPU cores with Slurm.
 
-## 🛠️ Technical Stack
+## Technical Stack
 
-- **HPC orchestration:** Slurm, Singularity, Bash
-- **Machine learning & math:** TensorFlow, Keras, XGBoost, Scikit-Learn, Joblib
-- **Parallel computing:** Python multiprocessing (Pool and Starmap)
-- **Data engineering:** Python, R, Pandas, NumPy, JSON
+- **HPC:** Slurm, Singularity/Apptainer, Bash
+- **Machine learning:** TensorFlow/Keras, XGBoost, scikit-learn, Optuna, joblib
+- **Parallel computing:** Python multiprocessing (Pool, starmap)
+- **Data processing:** Python, R, Pandas, NumPy
