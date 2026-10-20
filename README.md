@@ -32,7 +32,7 @@ Each stage of the pipeline is a separate script:
 ## Results
 
 - **Model performance:** the best model, a deep neural network (5 layers, 1,000 neurons), reached a median R² of 0.83 on held-out data in the Yoruba population.
-- **Transfer:** without retraining, the same network kept R² ≈ 0.80 in other 25 populations across 4 continents.
+- **Transfer:** without re-tuning, the same network kept R² ≈ 0.80 in other 25 populations across 4 continents.
 - **Explainability:** permutation feature importance and accumulated local effects (ALE) plots showed that iHS increases near thermogenic genes, independently of the genomic confounders in the model.
 - **Scaling:** model selection distributed over hundreds of CPU cores with Slurm.
 
